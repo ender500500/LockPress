@@ -6,13 +6,13 @@ A night lock for Clash Royale, Brawl Stars, Instagram, Brave, Snapchat and Reddi
 
 ## How it works
 
-- **Settings page** (no URL parameters): lock hours, hold duration, how long an unlock lasts, and which apps are locked. "Save to Shortcuts" runs **LockPress Save**, which writes them to `LockPress/settings.json` in the Shortcuts iCloud folder.
-- **LockPress Gate** (run by one automation per app, kept deliberately simple): if `LockPress/<app>.txt` holds a time later than now, it does nothing. Otherwise it opens
+- **Settings page** (no URL parameters): lock hours, hold duration, how long an unlock lasts, and which apps are locked. "Save to Shortcuts" runs **LockPress Save**, which writes them to `LockPress/settings.json` in the Shortcuts iCloud folder and deletes `LockPress/pass/` so new settings apply right away.
+- **LockPress Gate** (run by one automation per app, kept deliberately simple): if `LockPress/pass/<app>.txt` holds a time later than now, it does nothing. Otherwise it opens
   `https://ender500500.github.io/LockPress/?app=<app>&cfg=<url-encoded settings.json>`
 - **Lock page** decides everything else:
   - inside the lock hours and the app is on the lock list → hold the circle, then run **LockPress Unlock** with `{"app": "...", "until": "yyyyMMddHHmm"}` (end of the night, or now + unlock minutes)
   - otherwise → pass straight through: run **LockPress Unlock** with `until` = the next lock start, so the Gate stays quiet until then (one quick bounce per app per day)
-- **LockPress Unlock**: saves `until` to `LockPress/<app>.txt` and opens the app again.
+- **LockPress Unlock**: saves `until` to `LockPress/pass/<app>.txt` and opens the app again.
 
 ### settings.json
 
