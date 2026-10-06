@@ -13,55 +13,49 @@
   :root {
     --bg: #07060f;
     --bg-2: #120f24;
+    --card: rgba(183, 156, 255, 0.07);
+    --line: rgba(183, 156, 255, 0.12);
     --text: #ece8ff;
     --muted: #8f87b8;
     --accent: #b79cff;
     --accent-2: #7c5cff;
     --ok: #7ee0b0;
+    --warn: #ffb4a8;
     --ring-track: rgba(183, 156, 255, 0.14);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; }
+  html, body { min-height: 100%; }
   body {
-    background: radial-gradient(120% 80% at 50% 0%, var(--bg-2) 0%, var(--bg) 60%);
+    background: radial-gradient(120% 80% at 50% 0%, var(--bg-2) 0%, var(--bg) 60%) fixed;
     background-color: var(--bg);
     color: var(--text);
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "Segoe UI", system-ui, sans-serif;
     -webkit-user-select: none; user-select: none;
     -webkit-touch-callout: none;
     -webkit-tap-highlight-color: transparent;
-    overflow: hidden;
   }
+  body.lock { overflow: hidden; height: 100%; }
+  .hidden { display: none !important; }
+
+  /* ---------- Lock view ---------- */
   .wrap {
-    min-height: 100%;
+    min-height: 100vh; min-height: 100dvh;
     display: flex; flex-direction: column; align-items: center;
     padding: calc(env(safe-area-inset-top) + 28px) 24px calc(env(safe-area-inset-bottom) + 28px);
     text-align: center;
   }
-  .clock {
-    font-size: 64px; font-weight: 200; letter-spacing: -1px;
-    font-variant-numeric: tabular-nums;
-    margin-top: 12px;
-  }
+  .clock { font-size: 64px; font-weight: 200; letter-spacing: -1px; font-variant-numeric: tabular-nums; margin-top: 12px; }
   .badge {
     display: inline-flex; align-items: center; gap: 8px;
     margin-top: 10px; padding: 6px 14px; border-radius: 999px;
-    background: rgba(183, 156, 255, 0.10);
-    color: var(--accent); font-size: 14px; font-weight: 600;
+    background: rgba(183, 156, 255, 0.10); color: var(--accent); font-size: 14px; font-weight: 600;
   }
   .title { margin-top: 28px; font-size: 22px; font-weight: 600; }
   .sub { margin-top: 8px; font-size: 15px; color: var(--muted); line-height: 1.45; max-width: 300px; }
-
-  .holder {
-    position: relative; margin: auto 0; width: 240px; height: 240px;
-    touch-action: none; cursor: pointer;
-  }
+  .holder { position: relative; margin: auto 0; width: 240px; height: 240px; touch-action: none; cursor: pointer; }
   .holder svg { width: 100%; height: 100%; transform: rotate(-90deg); }
   .track { fill: none; stroke: var(--ring-track); stroke-width: 10; }
-  .prog {
-    fill: none; stroke: url(#grad); stroke-width: 10; stroke-linecap: round;
-    stroke-dasharray: 691.15; stroke-dashoffset: 691.15;
-  }
+  .prog { fill: none; stroke: url(#grad); stroke-width: 10; stroke-linecap: round; stroke-dasharray: 691.15; stroke-dashoffset: 691.15; }
   .core {
     position: absolute; inset: 22px; border-radius: 50%;
     background: radial-gradient(circle at 50% 35%, #231c45, #140f2a);
@@ -74,26 +68,80 @@
   .hint { margin-top: 2px; font-size: 13px; color: var(--muted); }
   .done .prog { stroke: var(--ok); }
   .done .count { color: var(--ok); }
-
-  .msg { min-height: 22px; font-size: 15px; color: var(--muted); transition: opacity 0.3s; }
-  .msg.warn { color: #ffb4a8; }
+  .msg { min-height: 22px; font-size: 15px; color: var(--muted); }
+  .msg.warn { color: var(--warn); }
+  .msg.good { color: var(--ok); }
   .btn {
     margin-top: 14px; padding: 14px 22px; border-radius: 14px; border: none;
     background: rgba(183, 156, 255, 0.14); color: var(--text);
     font-size: 16px; font-weight: 600; font-family: inherit;
   }
-  .hidden { display: none !important; }
+
+  /* ---------- Settings view ---------- */
+  .settings {
+    max-width: 480px; margin: 0 auto;
+    padding: calc(env(safe-area-inset-top) + 24px) 16px calc(env(safe-area-inset-bottom) + 32px);
+  }
+  .head { display: flex; align-items: center; gap: 12px; margin: 8px 4px 6px; }
+  .logo {
+    width: 44px; height: 44px; border-radius: 12px; flex: none;
+    display: grid; place-items: center; font-size: 22px;
+    background: linear-gradient(135deg, #2a2050, #151030); box-shadow: 0 0 0 1px var(--line);
+  }
+  .head h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+  .lead { margin: 4px 4px 20px; font-size: 15px; color: var(--muted); line-height: 1.45; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 6px 16px; margin-bottom: 14px; }
+  .card h2 { font-size: 13px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; color: var(--muted); padding: 12px 0 6px; }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 50px; border-top: 1px solid var(--line); font-size: 17px; }
+  .card h2 + .row, #appList .row:first-child { border-top: none; }
+  .note { font-size: 13px; color: var(--muted); padding: 4px 0 12px; line-height: 1.4; }
+  input[type="time"] {
+    -webkit-appearance: none; appearance: none;
+    background: rgba(183, 156, 255, 0.12); color: var(--text);
+    border: none; border-radius: 10px; padding: 7px 12px;
+    font-size: 17px; font-family: inherit; font-variant-numeric: tabular-nums; min-width: 96px; text-align: center;
+  }
+  .stepper { display: flex; align-items: center; background: rgba(183, 156, 255, 0.12); border-radius: 10px; overflow: hidden; }
+  .stepper button {
+    width: 44px; height: 36px; border: none; background: none; color: var(--text);
+    font-size: 22px; font-family: inherit; line-height: 1;
+  }
+  .stepper output { min-width: 52px; text-align: center; font-variant-numeric: tabular-nums; font-size: 17px; }
+  .seg { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; background: rgba(183, 156, 255, 0.08); border-radius: 12px; padding: 4px; margin: 4px 0 14px; }
+  .seg button {
+    border: none; background: none; color: var(--muted); border-radius: 9px;
+    padding: 10px 4px; font-size: 14px; font-weight: 600; font-family: inherit;
+  }
+  .seg button.on { background: var(--accent-2); color: #fff; }
+  .switch {
+    -webkit-appearance: none; appearance: none; flex: none;
+    width: 51px; height: 31px; border-radius: 999px; position: relative;
+    background: rgba(183, 156, 255, 0.18); transition: background 0.2s;
+  }
+  .switch::after {
+    content: ""; position: absolute; top: 2px; left: 2px; width: 27px; height: 27px; border-radius: 50%;
+    background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.3); transition: transform 0.2s;
+  }
+  .switch:checked { background: var(--accent-2); }
+  .switch:checked::after { transform: translateX(20px); }
+  .primary {
+    width: 100%; margin-top: 8px; padding: 16px; border: none; border-radius: 16px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff;
+    font-size: 17px; font-weight: 700; font-family: inherit;
+  }
+  .settings .msg { text-align: center; margin-top: 12px; }
 </style>
 </head>
 <body>
-<div class="wrap">
+
+<!-- ===================== Lock view (opened by the Gate shortcut) ===================== -->
+<main class="wrap hidden" id="lockView">
   <div class="clock" id="clock">--:--</div>
   <div class="badge"><span>🌙</span><span id="badgeText">Night lock</span></div>
-
   <div class="title" id="title">Locked for the night</div>
-  <div class="sub" id="sub">Hold the circle for 10 seconds if you really want to unlock.</div>
+  <div class="sub" id="sub"></div>
 
-  <div class="holder" id="holder" aria-label="Hold for 10 seconds to unlock" role="button">
+  <div class="holder" id="holder" aria-label="Hold to unlock" role="button">
     <svg viewBox="0 0 240 240" aria-hidden="true">
       <defs>
         <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
@@ -112,115 +160,271 @@
 
   <div class="msg" id="msg"></div>
   <button class="btn hidden" id="retry">Open again</button>
-</div>
+</main>
+
+<!-- ===================== Settings view (opened directly / from Home Screen) ===================== -->
+<main class="settings hidden" id="settingsView">
+  <div class="head">
+    <div class="logo">🌙</div>
+    <h1>LockPress</h1>
+  </div>
+  <p class="lead">Set everything here, then tap Save. Your settings go to Shortcuts, and the lock uses them right away.</p>
+
+  <section class="card">
+    <h2>Lock hours</h2>
+    <div class="row"><span>From</span><input type="time" id="from"></div>
+    <div class="row"><span>Until</span><input type="time" id="to"></div>
+    <p class="note" id="lenNote"></p>
+  </section>
+
+  <section class="card">
+    <h2>Hold to unlock</h2>
+    <div class="row">
+      <span>Hold for</span>
+      <div class="stepper">
+        <button type="button" data-step="-1" aria-label="Shorter">−</button>
+        <output id="holdOut">10 s</output>
+        <button type="button" data-step="1" aria-label="Longer">+</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>After unlocking, stay open for</h2>
+    <div class="seg" id="unlockSeg">
+      <button type="button" data-min="0">Rest of night</button>
+      <button type="button" data-min="15">15 min</button>
+      <button type="button" data-min="30">30 min</button>
+      <button type="button" data-min="60">1 h</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Locked apps</h2>
+    <div id="appList"></div>
+    <p class="note">Each app also needs its own automation in Shortcuts.</p>
+  </section>
+
+  <button class="primary" id="save">Save to Shortcuts</button>
+  <div class="msg" id="saveMsg"></div>
+</main>
 
 <script>
-  // ---- Config ----
-  const HOLD_MS = 10000;
-  const UNLOCK_SHORTCUT = 'LockPress Unlock';
+  // ---------------- Config ----------------
+  const SHORTCUT_UNLOCK = 'LockPress Unlock';
+  const SHORTCUT_SAVE = 'LockPress Save';
+  // key (used in Shortcuts) → name shown on the page
   const APPS = {
     clashroyale: 'Clash Royale',
     brawlstars: 'Brawl Stars',
-    youtube: 'YouTube'
+    instagram: 'Instagram',
+    brave: 'Brave',
+    snapchat: 'Snapchat',
+    reddit: 'Reddit'
   };
-
-  // ---- URL params: ?app=clashroyale&until=07:30 ----
-  const params = new URLSearchParams(location.search);
-  const appKey = (params.get('app') || '').toLowerCase().trim();
-  const appName = APPS[appKey] || (appKey ? appKey : '');
-  const until = params.get('until') || '';
+  const DEFAULTS = { from: '22:00', to: '07:30', hold: 10, unlockMinutes: 0 };
+  for (const k of Object.keys(APPS)) DEFAULTS[k] = 1;
+  const HOLD_MIN = 3, HOLD_MAX = 60;
 
   const $ = id => document.getElementById(id);
-  const holder = $('holder'), prog = $('prog'), count = $('count'),
-        hint = $('hint'), msg = $('msg'), retry = $('retry');
-  const CIRC = 2 * Math.PI * 110;
+  const pad = n => String(n).padStart(2, '0');
+  const toMin = hhmm => { const [h, m] = hhmm.split(':').map(Number); return h * 60 + m; };
+  const lengthOf = (from, to) => { const l = (toMin(to) - toMin(from) + 1440) % 1440; return l === 0 ? 1440 : l; };
+  const shortcutUrl = (name, text) =>
+    'shortcuts://run-shortcut?name=' + encodeURIComponent(name) + '&input=text&text=' + encodeURIComponent(text);
 
-  // ---- Texts ----
-  if (appName) {
-    $('title').textContent = appName + ' is locked';
-    $('sub').textContent = 'Hold the circle for 10 seconds if you really want to open it.';
-  } else {
-    $('title').textContent = 'Night lock';
-    $('sub').textContent = 'Hold the circle for 10 seconds to unlock your apps for the rest of the night.';
+  // ---------------- Settings: defaults ← local copy ← cfg from Shortcuts ----------------
+  function readLocal() {
+    try { return JSON.parse(localStorage.getItem('lockpress') || '{}'); } catch (e) { return {}; }
   }
-  $('badgeText').textContent = until ? 'Locked until ' + until : 'Night lock';
-
-  // ---- Clock ----
-  function tick() {
-    const d = new Date();
-    $('clock').textContent = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+  function writeLocal(s) {
+    try { localStorage.setItem('lockpress', JSON.stringify(s)); } catch (e) {}
   }
-  tick(); setInterval(tick, 5000);
-
-  // ---- Hold logic ----
-  let start = 0, raf = 0, done = false;
-
-  function setProgress(p) {
-    prog.style.strokeDashoffset = CIRC * (1 - p);
-    const left = Math.ceil((HOLD_MS - p * HOLD_MS) / 1000);
-    count.textContent = done ? '✓' : String(Math.max(left, 0));
+  function clean(raw) {
+    const s = { ...DEFAULTS };
+    if (/^\d{1,2}:\d{2}$/.test(raw.from)) s.from = raw.from.padStart(5, '0');
+    if (/^\d{1,2}:\d{2}$/.test(raw.to)) s.to = raw.to.padStart(5, '0');
+    const hold = Number(raw.hold);
+    if (hold >= HOLD_MIN && hold <= HOLD_MAX) s.hold = Math.round(hold);
+    const um = Number(raw.unlockMinutes);
+    if ([0, 15, 30, 60].includes(um)) s.unlockMinutes = um;
+    for (const k of Object.keys(APPS)) if (k in raw) s[k] = Number(raw[k]) ? 1 : 0;
+    return s;
   }
-
-  function frame(now) {
-    const p = Math.min((now - start) / HOLD_MS, 1);
-    setProgress(p);
-    if (p >= 1) { finish(); return; }
-    raf = requestAnimationFrame(frame);
+  // What gets saved to LockPress/settings.json (start/length are for the Gate shortcut's math)
+  function toFile(s) {
+    const out = {
+      from: s.from, to: s.to,
+      start: toMin(s.from), length: lengthOf(s.from, s.to),
+      hold: s.hold, unlockMinutes: s.unlockMinutes
+    };
+    for (const k of Object.keys(APPS)) out[k] = s[k];
+    return out;
   }
 
-  function begin(e) {
-    if (done) return;
-    e.preventDefault();
-    start = performance.now();
-    holder.classList.add('holding');
-    hint.textContent = 'keep holding';
-    msg.textContent = ''; msg.classList.remove('warn');
-    cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(frame);
-  }
+  const params = new URLSearchParams(location.search);
+  let fromShortcuts = null;
+  try { if (params.get('cfg')) fromShortcuts = JSON.parse(params.get('cfg')); } catch (e) {}
+  let settings = clean({ ...readLocal(), ...(fromShortcuts || {}) });
+  if (fromShortcuts) writeLocal(settings);   // keep the local copy in sync with Shortcuts
 
-  function cancel() {
-    if (done || !start) return;
-    const held = performance.now() - start;
-    start = 0;
-    cancelAnimationFrame(raf);
-    holder.classList.remove('holding');
-    prog.style.transition = 'stroke-dashoffset 0.4s ease';
-    setProgress(0);
-    setTimeout(() => { prog.style.transition = ''; }, 420);
-    hint.textContent = 'hold';
-    if (held > 400) {
-      msg.textContent = 'Let go too early. It takes the full 10 seconds.';
-      msg.classList.add('warn');
+  const appKey = (params.get('app') || '').toLowerCase().trim();
+  const lockMode = params.has('app');
+
+  // ======================================================================
+  // Lock view
+  // ======================================================================
+  function initLock() {
+    document.body.classList.add('lock');
+    $('lockView').classList.remove('hidden');
+
+    const HOLD_MS = settings.hold * 1000;
+    const appName = APPS[appKey] || appKey;
+    const holder = $('holder'), prog = $('prog'), count = $('count'),
+          hint = $('hint'), msg = $('msg'), retry = $('retry');
+    const CIRC = 2 * Math.PI * 110;
+
+    $('badgeText').textContent = 'Locked until ' + settings.to;
+    $('title').textContent = appName ? appName + ' is locked' : 'Locked for the night';
+    $('sub').textContent = 'Hold the circle for ' + settings.hold + ' seconds if you really want to open it.';
+
+    const tick = () => { const d = new Date(); $('clock').textContent = pad(d.getHours()) + ':' + pad(d.getMinutes()); };
+    tick(); setInterval(tick, 5000);
+
+    let start = 0, raf = 0, done = false;
+
+    function setProgress(p) {
+      prog.style.strokeDashoffset = CIRC * (1 - p);
+      count.textContent = done ? '✓' : String(Math.max(Math.ceil((HOLD_MS - p * HOLD_MS) / 1000), 0));
     }
+    function frame(now) {
+      const p = Math.min((now - start) / HOLD_MS, 1);
+      setProgress(p);
+      if (p >= 1) { finish(); return; }
+      raf = requestAnimationFrame(frame);
+    }
+    function begin(e) {
+      if (done) return;
+      e.preventDefault();
+      start = performance.now();
+      holder.classList.add('holding');
+      hint.textContent = 'keep holding';
+      msg.textContent = ''; msg.className = 'msg';
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(frame);
+    }
+    function cancel() {
+      if (done || !start) return;
+      const held = performance.now() - start;
+      start = 0;
+      cancelAnimationFrame(raf);
+      holder.classList.remove('holding');
+      prog.style.transition = 'stroke-dashoffset 0.4s ease';
+      setProgress(0);
+      setTimeout(() => { prog.style.transition = ''; }, 420);
+      hint.textContent = 'hold';
+      if (held > 400) {
+        msg.textContent = 'Let go too early. It takes the full ' + settings.hold + ' seconds.';
+        msg.className = 'msg warn';
+      }
+    }
+
+    // Until when the unlock lasts, as yyyyMMddHHmm (the Gate compares it as a number)
+    function unlockUntil() {
+      const now = new Date();
+      let d;
+      if (settings.unlockMinutes > 0) {
+        d = new Date(now.getTime() + settings.unlockMinutes * 60000);
+      } else {
+        const [h, m] = settings.to.split(':').map(Number);
+        d = new Date(now); d.setHours(h, m, 0, 0);
+        if (d <= now) d.setDate(d.getDate() + 1);
+      }
+      return '' + d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + pad(d.getHours()) + pad(d.getMinutes());
+    }
+
+    let unlockLink = '';
+    function finish() {
+      done = true; start = 0;
+      holder.classList.remove('holding');
+      holder.classList.add('done');
+      setProgress(1);
+      hint.textContent = 'unlocked';
+      $('title').textContent = appName ? appName + ' unlocked' : 'Unlocked';
+      $('sub').textContent = settings.unlockMinutes > 0
+        ? 'Open for ' + settings.unlockMinutes + ' minutes.'
+        : 'Open until ' + settings.to + '.';
+      msg.textContent = appName ? 'Opening ' + appName + '…' : 'Saving…';
+      msg.className = 'msg good';
+      unlockLink = shortcutUrl(SHORTCUT_UNLOCK, JSON.stringify({ app: appKey, until: unlockUntil() }));
+      setTimeout(() => { location.href = unlockLink; retry.classList.remove('hidden'); }, 600);
+    }
+
+    retry.addEventListener('click', () => { location.href = unlockLink; });
+    holder.addEventListener('pointerdown', begin);
+    ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => holder.addEventListener(ev, cancel));
+    holder.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('visibilitychange', () => { if (document.hidden) cancel(); });
+    setProgress(0);
   }
 
-  function unlockUrl() {
-    let url = 'shortcuts://run-shortcut?name=' + encodeURIComponent(UNLOCK_SHORTCUT);
-    if (appKey) url += '&input=text&text=' + encodeURIComponent(appKey);
-    return url;
+  // ======================================================================
+  // Settings view
+  // ======================================================================
+  function initSettings() {
+    $('settingsView').classList.remove('hidden');
+    const s = { ...settings };
+
+    const fromEl = $('from'), toEl = $('to');
+    fromEl.value = s.from; toEl.value = s.to;
+
+    function renderLength() {
+      const l = lengthOf(s.from, s.to);
+      const h = Math.floor(l / 60), m = l % 60;
+      $('lenNote').textContent = 'Locked for ' + h + ' h' + (m ? ' ' + m + ' min' : '') + ' every night.';
+    }
+    fromEl.addEventListener('change', () => { if (fromEl.value) s.from = fromEl.value; renderLength(); });
+    toEl.addEventListener('change', () => { if (toEl.value) s.to = toEl.value; renderLength(); });
+    renderLength();
+
+    const holdOut = $('holdOut');
+    const renderHold = () => { holdOut.textContent = s.hold + ' s'; };
+    document.querySelectorAll('.stepper button').forEach(b => b.addEventListener('click', () => {
+      s.hold = Math.min(HOLD_MAX, Math.max(HOLD_MIN, s.hold + Number(b.dataset.step)));
+      renderHold();
+    }));
+    renderHold();
+
+    const segBtns = document.querySelectorAll('#unlockSeg button');
+    const renderSeg = () => segBtns.forEach(b => b.classList.toggle('on', Number(b.dataset.min) === s.unlockMinutes));
+    segBtns.forEach(b => b.addEventListener('click', () => { s.unlockMinutes = Number(b.dataset.min); renderSeg(); }));
+    renderSeg();
+
+    const list = $('appList');
+    for (const [key, name] of Object.entries(APPS)) {
+      const row = document.createElement('label');
+      row.className = 'row';
+      const label = document.createElement('span');
+      label.textContent = name;
+      const sw = document.createElement('input');
+      sw.type = 'checkbox'; sw.className = 'switch'; sw.dataset.app = key;
+      row.append(label, sw);
+      list.append(row);
+    }
+    document.querySelectorAll('.switch').forEach(sw => {
+      sw.checked = !!s[sw.dataset.app];
+      sw.addEventListener('change', () => { s[sw.dataset.app] = sw.checked ? 1 : 0; });
+    });
+
+    $('save').addEventListener('click', () => {
+      writeLocal(s);
+      $('saveMsg').textContent = 'Opening Shortcuts to save…';
+      $('saveMsg').className = 'msg good';
+      location.href = shortcutUrl(SHORTCUT_SAVE, JSON.stringify(toFile(s)));
+    });
   }
 
-  function finish() {
-    done = true; start = 0;
-    holder.classList.remove('holding');
-    holder.classList.add('done');
-    setProgress(1);
-    hint.textContent = 'unlocked';
-    $('title').textContent = appName ? appName + ' unlocked' : 'Unlocked';
-    $('sub').textContent = 'Free until the night lock ends.';
-    msg.textContent = appName ? 'Unlocked for tonight. Opening ' + appName + '…' : 'Unlocked for tonight.';
-    setTimeout(() => { location.href = unlockUrl(); retry.classList.remove('hidden'); }, 600);
-  }
-
-  retry.addEventListener('click', () => { location.href = unlockUrl(); });
-
-  holder.addEventListener('pointerdown', begin);
-  ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => holder.addEventListener(ev, cancel));
-  holder.addEventListener('contextmenu', e => e.preventDefault());
-  document.addEventListener('visibilitychange', () => { if (document.hidden) cancel(); });
-
-  setProgress(0);
+  if (lockMode) initLock(); else initSettings();
 </script>
 </body>
 </html>
