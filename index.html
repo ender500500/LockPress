@@ -329,21 +329,42 @@
       }
     }
 
-    // Until when the unlock lasts, as yyyyMMddHHmm (the Gate compares it as a number)
-    function unlockUntil() {
+    // Times are passed to Shortcuts as yyyyMMddHHmm (the Gate compares them as numbers)
+    const stamp = d => '' + d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + pad(d.getHours()) + pad(d.getMinutes());
+    // Next time the clock shows hh:mm (today if still ahead, otherwise tomorrow)
+    function nextAt(hhmm) {
       const now = new Date();
-      let d;
-      if (settings.unlockMinutes > 0) {
-        d = new Date(now.getTime() + settings.unlockMinutes * 60000);
-      } else {
-        const [h, m] = settings.to.split(':').map(Number);
-        d = new Date(now); d.setHours(h, m, 0, 0);
-        if (d <= now) d.setDate(d.getDate() + 1);
-      }
-      return '' + d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + pad(d.getHours()) + pad(d.getMinutes());
+      const [h, m] = hhmm.split(':').map(Number);
+      const d = new Date(now); d.setHours(h, m, 0, 0);
+      if (d <= now) d.setDate(d.getDate() + 1);
+      return d;
+    }
+    function unlockUntil() {
+      if (settings.unlockMinutes > 0) return stamp(new Date(Date.now() + settings.unlockMinutes * 60000));
+      return stamp(nextAt(settings.to));
     }
 
+    // Should this app be locked right now? (The page decides, so the Gate shortcut stays simple.)
+    const nowDate = new Date();
+    const nowMin = nowDate.getHours() * 60 + nowDate.getMinutes();
+    const inLockHours = (nowMin + 1440 - toMin(settings.from)) % 1440 < lengthOf(settings.from, settings.to);
+    const enabled = !(appKey in APPS) || settings[appKey] !== 0;
+
     let unlockLink = '';
+
+    // Not locked: hand straight back to the app and skip the Gate until the next lock start
+    function passThrough() {
+      done = true;
+      holder.classList.add('hidden');
+      $('badgeText').textContent = enabled ? 'Not locked right now' : 'Not on your lock list';
+      $('title').textContent = appName ? 'Opening ' + appName + '…' : 'Not locked';
+      $('sub').textContent = enabled
+        ? 'The lock starts at ' + settings.from + '.'
+        : 'Turn it on in LockPress settings to lock it.';
+      unlockLink = shortcutUrl(SHORTCUT_UNLOCK, JSON.stringify({ app: appKey, until: stamp(nextAt(settings.from)) }));
+      setTimeout(() => { location.href = unlockLink; retry.classList.remove('hidden'); }, 300);
+    }
+
     function finish() {
       done = true; start = 0;
       holder.classList.remove('holding');
@@ -366,6 +387,7 @@
     holder.addEventListener('contextmenu', e => e.preventDefault());
     document.addEventListener('visibilitychange', () => { if (document.hidden) cancel(); });
     setProgress(0);
+    if (!inLockHours || !enabled) passThrough();
   }
 
   // ======================================================================

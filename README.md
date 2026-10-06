@@ -7,10 +7,12 @@ A night lock for Clash Royale, Brawl Stars, Instagram, Brave, Snapchat and Reddi
 ## How it works
 
 - **Settings page** (no URL parameters): lock hours, hold duration, how long an unlock lasts, and which apps are locked. "Save to Shortcuts" runs **LockPress Save**, which writes them to `LockPress/settings.json` in the Shortcuts iCloud folder.
-- **LockPress Gate** (run by one automation per app): reads `settings.json`, checks the app is enabled, the time is inside the lock hours and there's no active unlock. If it should lock, it opens
+- **LockPress Gate** (run by one automation per app, kept deliberately simple): if `LockPress/<app>.txt` holds a time later than now, it does nothing. Otherwise it opens
   `https://ender500500.github.io/LockPress/?app=<app>&cfg=<url-encoded settings.json>`
-- **Lock page**: hold the circle; then it runs **LockPress Unlock** with `{"app": "...", "until": "yyyyMMddHHmm"}`.
-- **LockPress Unlock**: saves `until` to `LockPress/unlocked.txt` and opens the app again.
+- **Lock page** decides everything else:
+  - inside the lock hours and the app is on the lock list → hold the circle, then run **LockPress Unlock** with `{"app": "...", "until": "yyyyMMddHHmm"}` (end of the night, or now + unlock minutes)
+  - otherwise → pass straight through: run **LockPress Unlock** with `until` = the next lock start, so the Gate stays quiet until then (one quick bounce per app per day)
+- **LockPress Unlock**: saves `until` to `LockPress/<app>.txt` and opens the app again.
 
 ### settings.json
 
@@ -18,7 +20,7 @@ A night lock for Clash Royale, Brawl Stars, Instagram, Brave, Snapchat and Reddi
 {"from":"22:00","to":"07:30","start":1320,"length":570,"hold":10,"unlockMinutes":0,"clashroyale":1,"brawlstars":1,"instagram":1,"brave":1,"snapchat":1,"reddit":1}
 ```
 
-`start` = lock start in minutes after midnight, `length` = lock length in minutes. The Gate locks when `(minutes since midnight + 1440 − start) mod 1440 < length`. `unlockMinutes` 0 means "rest of the night".
+`start` = lock start in minutes after midnight, `length` = lock length in minutes. The page locks when `(minutes since midnight + 1440 − start) mod 1440 < length`. `unlockMinutes` 0 means "rest of the night".
 
 App keys: `clashroyale`, `brawlstars`, `instagram`, `brave`, `snapchat`, `reddit`. To add an app: add it to `APPS` in `index.html`, add a branch to LockPress Unlock, and create its automation. Usage limits are handled by Screen Time → App Limits.
 
