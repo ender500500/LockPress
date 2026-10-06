@@ -93,7 +93,7 @@
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 6px 16px; margin-bottom: 14px; }
   .card h2 { font-size: 13px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; color: var(--muted); padding: 12px 0 6px; }
   .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 50px; border-top: 1px solid var(--line); font-size: 17px; }
-  .card h2 + .row { border-top: none; }
+  .card h2 + .row, #appList .row:first-child { border-top: none; }
   .note { font-size: 13px; color: var(--muted); padding: 4px 0 12px; line-height: 1.4; }
   input[type="time"] {
     -webkit-appearance: none; appearance: none;
@@ -201,9 +201,7 @@
 
   <section class="card">
     <h2>Locked apps</h2>
-    <label class="row"><span>Clash Royale</span><input type="checkbox" class="switch" data-app="clashroyale"></label>
-    <label class="row"><span>Brawl Stars</span><input type="checkbox" class="switch" data-app="brawlstars"></label>
-    <label class="row"><span>YouTube</span><input type="checkbox" class="switch" data-app="youtube"></label>
+    <div id="appList"></div>
     <p class="note">Each app also needs its own automation in Shortcuts.</p>
   </section>
 
@@ -215,8 +213,17 @@
   // ---------------- Config ----------------
   const SHORTCUT_UNLOCK = 'LockPress Unlock';
   const SHORTCUT_SAVE = 'LockPress Save';
-  const APPS = { clashroyale: 'Clash Royale', brawlstars: 'Brawl Stars', youtube: 'YouTube' };
-  const DEFAULTS = { from: '22:00', to: '07:30', hold: 10, unlockMinutes: 0, clashroyale: 1, brawlstars: 1, youtube: 1 };
+  // key (used in Shortcuts) → name shown on the page
+  const APPS = {
+    clashroyale: 'Clash Royale',
+    brawlstars: 'Brawl Stars',
+    instagram: 'Instagram',
+    brave: 'Brave',
+    snapchat: 'Snapchat',
+    reddit: 'Reddit'
+  };
+  const DEFAULTS = { from: '22:00', to: '07:30', hold: 10, unlockMinutes: 0 };
+  for (const k of Object.keys(APPS)) DEFAULTS[k] = 1;
   const HOLD_MIN = 3, HOLD_MAX = 60;
 
   const $ = id => document.getElementById(id);
@@ -246,12 +253,13 @@
   }
   // What gets saved to LockPress/settings.json (start/length are for the Gate shortcut's math)
   function toFile(s) {
-    return {
+    const out = {
       from: s.from, to: s.to,
       start: toMin(s.from), length: lengthOf(s.from, s.to),
-      hold: s.hold, unlockMinutes: s.unlockMinutes,
-      clashroyale: s.clashroyale, brawlstars: s.brawlstars, youtube: s.youtube
+      hold: s.hold, unlockMinutes: s.unlockMinutes
     };
+    for (const k of Object.keys(APPS)) out[k] = s[k];
+    return out;
   }
 
   const params = new URLSearchParams(location.search);
@@ -392,6 +400,17 @@
     segBtns.forEach(b => b.addEventListener('click', () => { s.unlockMinutes = Number(b.dataset.min); renderSeg(); }));
     renderSeg();
 
+    const list = $('appList');
+    for (const [key, name] of Object.entries(APPS)) {
+      const row = document.createElement('label');
+      row.className = 'row';
+      const label = document.createElement('span');
+      label.textContent = name;
+      const sw = document.createElement('input');
+      sw.type = 'checkbox'; sw.className = 'switch'; sw.dataset.app = key;
+      row.append(label, sw);
+      list.append(row);
+    }
     document.querySelectorAll('.switch').forEach(sw => {
       sw.checked = !!s[sw.dataset.app];
       sw.addEventListener('change', () => { s[sw.dataset.app] = sw.checked ? 1 : 0; });

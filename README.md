@@ -1,6 +1,6 @@
 # LockPress
 
-A night lock for Clash Royale, Brawl Stars and YouTube. During your set hours, opening one of them jumps to a lock screen. Holding the circle unlocks that app for a while.
+A night lock for Clash Royale, Brawl Stars, Instagram, Brave, Snapchat and Reddit. During your set hours, opening one of them jumps to a lock screen. Holding the circle unlocks that app for a while.
 
 **Settings page:** https://ender500500.github.io/LockPress/ (add it to your Home Screen)
 
@@ -15,12 +15,12 @@ A night lock for Clash Royale, Brawl Stars and YouTube. During your set hours, o
 ### settings.json
 
 ```json
-{"from":"22:00","to":"07:30","start":1320,"length":570,"hold":10,"unlockMinutes":0,"clashroyale":1,"brawlstars":1,"youtube":1}
+{"from":"22:00","to":"07:30","start":1320,"length":570,"hold":10,"unlockMinutes":0,"clashroyale":1,"brawlstars":1,"instagram":1,"brave":1,"snapchat":1,"reddit":1}
 ```
 
 `start` = lock start in minutes after midnight, `length` = lock length in minutes. The Gate locks when `(minutes since midnight + 1440 − start) mod 1440 < length`. `unlockMinutes` 0 means "rest of the night".
 
-App keys: `clashroyale`, `brawlstars`, `youtube`. Usage limits are handled by Screen Time → App Limits.
+App keys: `clashroyale`, `brawlstars`, `instagram`, `brave`, `snapchat`, `reddit`. To add an app: add it to `APPS` in `index.html`, add a branch to LockPress Unlock, and create its automation. Usage limits are handled by Screen Time → App Limits.
 
 ## Limits
 
