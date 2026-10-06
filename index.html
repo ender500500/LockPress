@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>LockPress</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LockPress">
+<meta name="theme-color" content="#07060f">
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzA3MDYwZiIvPjxwYXRoIGQ9Ik02MiAyNmEyNiAyNiAwIDEgMCAxMiA0NiAyMiAyMiAwIDAgMS0xMi00NnoiIGZpbGw9IiNjOWI4ZmYiLz48L3N2Zz4=">
+<style>
+  :root {
+    --bg: #07060f;
+    --bg-2: #120f24;
+    --text: #ece8ff;
+    --muted: #8f87b8;
+    --accent: #b79cff;
+    --accent-2: #7c5cff;
+    --ok: #7ee0b0;
+    --ring-track: rgba(183, 156, 255, 0.14);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: radial-gradient(120% 80% at 50% 0%, var(--bg-2) 0%, var(--bg) 60%);
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "Segoe UI", system-ui, sans-serif;
+    -webkit-user-select: none; user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+    overflow: hidden;
+  }
+  .wrap {
+    min-height: 100%;
+    display: flex; flex-direction: column; align-items: center;
+    padding: calc(env(safe-area-inset-top) + 28px) 24px calc(env(safe-area-inset-bottom) + 28px);
+    text-align: center;
+  }
+  .clock {
+    font-size: 64px; font-weight: 200; letter-spacing: -1px;
+    font-variant-numeric: tabular-nums;
+    margin-top: 12px;
+  }
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-top: 10px; padding: 6px 14px; border-radius: 999px;
+    background: rgba(183, 156, 255, 0.10);
+    color: var(--accent); font-size: 14px; font-weight: 600;
+  }
+  .title { margin-top: 28px; font-size: 22px; font-weight: 600; }
+  .sub { margin-top: 8px; font-size: 15px; color: var(--muted); line-height: 1.45; max-width: 300px; }
+
+  .holder {
+    position: relative; margin: auto 0; width: 240px; height: 240px;
+    touch-action: none; cursor: pointer;
+  }
+  .holder svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .track { fill: none; stroke: var(--ring-track); stroke-width: 10; }
+  .prog {
+    fill: none; stroke: url(#grad); stroke-width: 10; stroke-linecap: round;
+    stroke-dasharray: 691.15; stroke-dashoffset: 691.15;
+  }
+  .core {
+    position: absolute; inset: 22px; border-radius: 50%;
+    background: radial-gradient(circle at 50% 35%, #231c45, #140f2a);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    box-shadow: 0 0 0 1px rgba(183, 156, 255, 0.12), 0 20px 60px rgba(124, 92, 255, 0.18);
+    transition: transform 0.25s ease;
+  }
+  .holding .core { transform: scale(0.95); }
+  .count { font-size: 56px; font-weight: 300; font-variant-numeric: tabular-nums; }
+  .hint { margin-top: 2px; font-size: 13px; color: var(--muted); }
+  .done .prog { stroke: var(--ok); }
+  .done .count { color: var(--ok); }
+
+  .msg { min-height: 22px; font-size: 15px; color: var(--muted); transition: opacity 0.3s; }
+  .msg.warn { color: #ffb4a8; }
+  .btn {
+    margin-top: 14px; padding: 14px 22px; border-radius: 14px; border: none;
+    background: rgba(183, 156, 255, 0.14); color: var(--text);
+    font-size: 16px; font-weight: 600; font-family: inherit;
+  }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="clock" id="clock">--:--</div>
+  <div class="badge"><span>🌙</span><span id="badgeText">Night lock</span></div>
+
+  <div class="title" id="title">Locked for the night</div>
+  <div class="sub" id="sub">Hold the circle for 10 seconds if you really want to unlock.</div>
+
+  <div class="holder" id="holder" aria-label="Hold for 10 seconds to unlock" role="button">
+    <svg viewBox="0 0 240 240" aria-hidden="true">
+      <defs>
+        <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#b79cff"/>
+          <stop offset="100%" stop-color="#7c5cff"/>
+        </linearGradient>
+      </defs>
+      <circle class="track" cx="120" cy="120" r="110"/>
+      <circle class="prog" id="prog" cx="120" cy="120" r="110"/>
+    </svg>
+    <div class="core">
+      <div class="count" id="count">10</div>
+      <div class="hint" id="hint">hold</div>
+    </div>
+  </div>
+
+  <div class="msg" id="msg"></div>
+  <button class="btn hidden" id="retry">Open again</button>
+</div>
+
+<script>
+  // ---- Config ----
+  const HOLD_MS = 10000;
+  const UNLOCK_SHORTCUT = 'LockPress Unlock';
+  const APPS = {
+    clashroyale: 'Clash Royale',
+    brawlstars: 'Brawl Stars',
+    youtube: 'YouTube'
+  };
+
+  // ---- URL params: ?app=clashroyale&until=07:30 ----
+  const params = new URLSearchParams(location.search);
+  const appKey = (params.get('app') || '').toLowerCase().trim();
+  const appName = APPS[appKey] || (appKey ? appKey : '');
+  const until = params.get('until') || '';
+
+  const $ = id => document.getElementById(id);
+  const holder = $('holder'), prog = $('prog'), count = $('count'),
+        hint = $('hint'), msg = $('msg'), retry = $('retry');
+  const CIRC = 2 * Math.PI * 110;
+
+  // ---- Texts ----
+  if (appName) {
+    $('title').textContent = appName + ' is locked';
+    $('sub').textContent = 'Hold the circle for 10 seconds if you really want to open it.';
+  } else {
+    $('title').textContent = 'Night lock';
+    $('sub').textContent = 'Hold the circle for 10 seconds to unlock your apps for the rest of the night.';
+  }
+  $('badgeText').textContent = until ? 'Locked until ' + until : 'Night lock';
+
+  // ---- Clock ----
+  function tick() {
+    const d = new Date();
+    $('clock').textContent = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+  }
+  tick(); setInterval(tick, 5000);
+
+  // ---- Hold logic ----
+  let start = 0, raf = 0, done = false;
+
+  function setProgress(p) {
+    prog.style.strokeDashoffset = CIRC * (1 - p);
+    const left = Math.ceil((HOLD_MS - p * HOLD_MS) / 1000);
+    count.textContent = done ? '✓' : String(Math.max(left, 0));
+  }
+
+  function frame(now) {
+    const p = Math.min((now - start) / HOLD_MS, 1);
+    setProgress(p);
+    if (p >= 1) { finish(); return; }
+    raf = requestAnimationFrame(frame);
+  }
+
+  function begin(e) {
+    if (done) return;
+    e.preventDefault();
+    start = performance.now();
+    holder.classList.add('holding');
+    hint.textContent = 'keep holding';
+    msg.textContent = ''; msg.classList.remove('warn');
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(frame);
+  }
+
+  function cancel() {
+    if (done || !start) return;
+    const held = performance.now() - start;
+    start = 0;
+    cancelAnimationFrame(raf);
+    holder.classList.remove('holding');
+    prog.style.transition = 'stroke-dashoffset 0.4s ease';
+    setProgress(0);
+    setTimeout(() => { prog.style.transition = ''; }, 420);
+    hint.textContent = 'hold';
+    if (held > 400) {
+      msg.textContent = 'Let go too early. It takes the full 10 seconds.';
+      msg.classList.add('warn');
+    }
+  }
+
+  function unlockUrl() {
+    let url = 'shortcuts://run-shortcut?name=' + encodeURIComponent(UNLOCK_SHORTCUT);
+    if (appKey) url += '&input=text&text=' + encodeURIComponent(appKey);
+    return url;
+  }
+
+  function finish() {
+    done = true; start = 0;
+    holder.classList.remove('holding');
+    holder.classList.add('done');
+    setProgress(1);
+    hint.textContent = 'unlocked';
+    $('title').textContent = appName ? appName + ' unlocked' : 'Unlocked';
+    $('sub').textContent = 'Free until the night lock ends.';
+    msg.textContent = appName ? 'Unlocked for tonight. Opening ' + appName + '…' : 'Unlocked for tonight.';
+    setTimeout(() => { location.href = unlockUrl(); retry.classList.remove('hidden'); }, 600);
+  }
+
+  retry.addEventListener('click', () => { location.href = unlockUrl(); });
+
+  holder.addEventListener('pointerdown', begin);
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => holder.addEventListener(ev, cancel));
+  holder.addEventListener('contextmenu', e => e.preventDefault());
+  document.addEventListener('visibilitychange', () => { if (document.hidden) cancel(); });
+
+  setProgress(0);
+</script>
+</body>
+</html>
