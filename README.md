@@ -1,21 +1,28 @@
 # LockPress
 
-A night lock for Clash Royale, Brawl Stars and YouTube. During set hours, opening one of them jumps to a lock screen. Holding the circle for 10 seconds unlocks that app until the morning.
+A night lock for Clash Royale, Brawl Stars and YouTube. During your set hours, opening one of them jumps to a lock screen. Holding the circle unlocks that app for a while.
 
-**Live page:** https://ender500500.github.io/LockPress/
+**Settings page:** https://ender500500.github.io/LockPress/ (add it to your Home Screen)
 
 ## How it works
 
-1. A Shortcuts automation fires when one of the apps is opened.
-2. The shortcut **LockPress Gate** checks whether it's night (22:00–07:30) and whether you've already unlocked tonight. If not, it opens the lock page:
-   `https://ender500500.github.io/LockPress/?app=clashroyale&until=07:30`
-3. After the 10-second hold, the page runs the shortcut **LockPress Unlock**, which saves the unlock time and opens the app again.
+- **Settings page** (no URL parameters): lock hours, hold duration, how long an unlock lasts, and which apps are locked. "Save to Shortcuts" runs **LockPress Save**, which writes them to `LockPress/settings.json` in the Shortcuts iCloud folder.
+- **LockPress Gate** (run by one automation per app): reads `settings.json`, checks the app is enabled, the time is inside the lock hours and there's no active unlock. If it should lock, it opens
+  `https://ender500500.github.io/LockPress/?app=<app>&cfg=<url-encoded settings.json>`
+- **Lock page**: hold the circle; then it runs **LockPress Unlock** with `{"app": "...", "until": "yyyyMMddHHmm"}`.
+- **LockPress Unlock**: saves `until` to `LockPress/unlocked.txt` and opens the app again.
 
-Supported `app` values: `clashroyale`, `brawlstars`, `youtube`. Without `app` (e.g. opened from the Home Screen), the page unlocks everything for the night.
+### settings.json
 
-Usage limits are handled by Screen Time → App Limits, not by LockPress.
+```json
+{"from":"22:00","to":"07:30","start":1320,"length":570,"hold":10,"unlockMinutes":0,"clashroyale":1,"brawlstars":1,"youtube":1}
+```
+
+`start` = lock start in minutes after midnight, `length` = lock length in minutes. The Gate locks when `(minutes since midnight + 1440 − start) mod 1440 < length`. `unlockMinutes` 0 means "rest of the night".
+
+App keys: `clashroyale`, `brawlstars`, `youtube`. Usage limits are handled by Screen Time → App Limits.
 
 ## Limits
 
-- It's a speed bump, not a hard lock: deleting the Shortcuts automation turns it off.
-- iOS may ask "Open in Shortcuts?" after the hold.
+- It's a speed bump, not a hard lock: deleting the automations turns it off.
+- iOS may ask "Open in Shortcuts?" after the hold and when saving settings.
